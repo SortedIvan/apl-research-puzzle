@@ -1,0 +1,175 @@
+;Disk: step|poleNr > how many disks are on the pole
+;6000 is the biggest, 500 is the one after, 40 is middle and 3 is the smallest
+;6543 means that they are stacked from the biggest (6000) to the smallest (3)
+;The solution does not allow sums such as 6546, 5049..etc.
+(declare-fun Pole (Int Int) Int)
+
+;Constant that identifies the desired last step
+(declare-const EndStep Int)
+
+;Total pole values are constant
+(define-fun TotalPoleValues((step Int)) Int
+	(+
+		(Pole step 1)
+		(Pole step 2)
+		(Pole step 3)
+	)
+)
+
+(assert
+(and 
+
+;Initial state where the disks are arranged correctly, we take the first pole
+(= (Pole 0 1) 6543)
+(= (Pole 0 2) 0)
+(= (Pole 0 3) 0)
+
+;Desired end state where the disks are re-arranged correctly, we take the third pole
+(= (Pole EndStep 1) 0)
+(= (Pole EndStep 2) 0)
+(= (Pole EndStep 3) 6543)
+
+;Poles can't have negative values and at most the capacity (6543)
+(forall ((step Int) (pole Int))
+	(implies (<= 0 step EndStep)
+		(<= 0 (Pole step pole) 6543)
+	)
+)
+
+;Total pole values combined remain constant
+(forall ((step Int))
+	(implies (<= 0 step)
+		(= (TotalPoleValues step)(TotalPoleValues (+ step 1)))
+	)
+)
+
+;Having an exist clause in order to avoid writing out all of the possible conditions
+;instead simplifying it to writing them out once
+(forall ((step Int))
+	(implies 
+		(<= 0 step EndStep)  
+		(exists ((p1 Int) (p2 Int) (p3 Int)) 
+			(and
+				(distinct p1 p2 p3)
+				(<= 1 p1 3)
+				(<= 1 p2 3)
+				(<= 1 p3 3)
+				
+				;One of the poles remains empty, while the two other change disks
+				(= (Pole step p1)(Pole (+ step 1) p1))
+				(distinct (Pole step p2)(Pole (+ step 1) p2))
+				(distinct (Pole step p3)(Pole (+ step 1) p3))
+
+				;We let Z3 choose how to move the disks around
+                (or 
+					;We can remove the biggest disk if the pole we're removing it from has only the biggest
+					;Similarly, we add 6000 only if the pole we are adding it to is empty
+                    (and
+                        (= (Pole (+ step 1) p2) (- (Pole step p2) 6000)) (= (Pole step p2) 6000)
+                        (= (Pole (+ step 1) p3) (+ (Pole step p3) 6000)) (= (Pole step p3) 0)
+                    )
+					;We remove 500 (After-biggest) if the pole itself had 500 or 6500
+					;We add 500 only if the pole is empty or has 6000 on it
+                    (and
+                        (= (Pole (+ step 1) p2) (- (Pole step p2) 500)) (or (= (Pole step p2) 500) (= (Pole step p2) 6500))
+                        (= (Pole (+ step 1) p3) (+ (Pole step p3) 500)) (or (= (Pole step p3) 0) (= (Pole step p3) 6000))
+                    )
+					;We can remove 40 (pre-smallest) if the pole itself has 40, 540, 6540 or 6040
+					;We add 40 only if it the pole we are adding has 500, 0, 6000 or 6500
+                    (and 
+                        (= (Pole (+ step 1) p2) (- (Pole step p2) 40)) (or (= (Pole step p2) 40) (= (Pole step p2) 540) (= (Pole step p2) 6540) (= (Pole step p2) 6040))
+                        (= (Pole (+ step 1) p3) (+ (Pole step p3) 40)) (or (= (Pole step p3) 0) (= (Pole step p3) 500) (= (Pole step p3) 6000) (= (Pole step p3) 6500))                    
+                    )
+					;Lastly, we do the same with almost all possible combinations for the smallest disk 
+                    (and
+                        (= (Pole (+ step 1) p2) (- (Pole step p2) 3)) (or (= (Pole step p2) 43) (= (Pole step p2) 543) (= (Pole step p2) 6543) (= (Pole step p2) 3)  (= (Pole step p2) 6003) (= (Pole step p2) 6503))
+                        (= (Pole (+ step 1) p3) (+ (Pole step p3) 3)) (or (= (Pole step p3) 0) (= (Pole step p3) 500) (= (Pole step p3) 540)  (= (Pole step p3) 40) (= (Pole step p3) 6540) (= (Pole step p3) 6000)
+						(= (Pole step p3) 6040) (= (Pole step p3) 6500))  
+                    )
+                
+                
+                )
+			)
+		)
+	)
+) 
+
+;End step restriction to 16, since it's the quickest way to re-arrange
+(<= 0 EndStep 16)
+
+))
+
+(check-sat)
+
+;Getting the specific values instead of presenting the entire model
+(get-value (
+
+(Pole 0 1)
+(Pole 0 2)
+(Pole 0 3)
+
+(Pole 1 1)
+(Pole 1 2)
+(Pole 1 3)
+
+(Pole 2 1)
+(Pole 2 2)
+(Pole 2 3)
+
+(Pole 3 1)
+(Pole 3 2)
+(Pole 3 3)
+
+(Pole 4 1)
+(Pole 4 2)
+(Pole 4 3)
+
+(Pole 5 1)
+(Pole 5 2)
+(Pole 5 3)
+
+(Pole 6 1)
+(Pole 6 2)
+(Pole 6 3)
+
+(Pole 7 1)
+(Pole 7 2)
+(Pole 7 3)
+
+(Pole 8 1)
+(Pole 8 2)
+(Pole 8 3)
+
+(Pole 9 1)
+(Pole 9 2)
+(Pole 9 3)
+
+(Pole 10 1)
+(Pole 10 2)
+(Pole 10 3)
+
+(Pole 11 1)
+(Pole 11 2)
+(Pole 11 3)
+
+(Pole 12 1)
+(Pole 12 2)
+(Pole 12 3)
+
+(Pole 13 1)
+(Pole 13 2)
+(Pole 13 3)
+
+(Pole 14 1)
+(Pole 14 2)
+(Pole 14 3)
+
+(Pole 15 1)
+(Pole 15 2)
+(Pole 15 3)
+
+(Pole 16 1)
+(Pole 16 2)
+(Pole 16 3)
+
+))
