@@ -1,0 +1,171 @@
+;Instantiating the 5x5 grid, where Int1 is x and Int2 is Y
+;It stores 4 different values - 0, meaning the point is not a triangle vertice
+; 1 - 3: 3 different values, appearing three times in pairs of two
+; They represent each of the triangle's 3 vertices
+(declare-fun T (Int Int) Int)
+
+
+;Function for creating a triangle, where the value passed is from 1 to 3
+(define-fun CreateTriangle ((value Int)) Bool
+
+	;There exists 3 vertices (3 pairs of x and y)
+    (exists ((x1 Int) (x2 Int) (x3 Int) (y1 Int) (y2 Int) (y3 Int))
+            (and 
+                        (<= 1 x1 5) (<= 1 y1 5) ;These values should be in the grid's bounds (between 1 and 5)
+                        (<= 1 x2 5) (<= 1 y2 5)
+                        (<= 1 x3 5) (<= 1 y3 5)
+
+		;We let Z3 choose between two ways to build a unique triangle
+		;based on the specified conditions
+			(or
+			;1) IF the y1 and y2 values are the same, then
+			; x1 and x2 should be distinct. This is done to form a line
+                (and
+                    (= y1 y2)
+                    (not (= x1 x2))
+
+                    (not (= y3 y1))
+                    (not (= y3 y2))
+				;To make a triangle, the y3, y2 and y1 values should be distinct respectively
+				;We let Z3 choose which X values should be equal in order to make a right-angled triangle
+                    (or 
+                        (= x3 x1)
+                        (= x3 x2)
+                    )          
+				;We let Z3 determine the lenght of the triangles
+				; This is done by checking the difference of the specified points below
+                    (or
+                        (and
+                            (= 3 (- y3 y1)) 
+                            (= 3 (- x1 x2))
+                            (= 3 (- y3 y2))
+                        )
+                        (and
+                            (= 4 (- y3 y1)) 
+                            (= 4 (- x1 x2))
+                            (= 4 (- y3 y2))
+                        )
+                    )
+				;The zero's between each vertice should be equal 
+                    (and
+                        (= (- y3 y1) (- x1 x2))
+                        (= (- y3 y2) (- x1 x2))
+                    )						
+
+                )
+				;The same goes for the other variant, but now the x1 and x2 are the same
+				;and y1 and y2 are different
+				(and
+                    (= x1 x2) 
+                    (not (= y1 y2))
+                    (not (= x3 x1))
+                    (not (= x3 x2))
+                    (or 
+                        (= y3 y1)
+                        (= y3 y2)
+                    )          
+                        
+                    (or
+                        (and
+                            (= 3 (- x3 x1)) 
+                            (= 3 (- y1 y2))
+                            (= 3 (- x3 x2))
+                        )
+                        (and
+                            (= 4 (- x3 x1)) 
+                            (= 4 (- y1 y2))
+                            (= 4 (- x3 x2))
+                        )
+                    )  
+                    (and
+                        (= (- x3 x1) (- y1 y2))
+                        (= (- x3 x2) (- y1 y2))
+                    )
+                ) 
+			)
+			;We assign the values for the 3 points	   
+            (= (T x1 y1) value)
+            (= (T x2 y2) value)
+            (= (T x3 y3) value)    
+       )
+    )      
+)
+
+
+;Function for applying the 5x5 grid's max values - from 0 to 3
+(define-fun MaxValuesForGrid ((x Int)(y Int)) Bool
+    (and
+        (<= 0 (T x y) 3)
+    )
+)
+
+;Function for counting and asserting how many 0's (non-vertices)
+;should appear in the grid
+;In the case of this assignment, 16 of the points should be 0's and 9 should be vertices
+(define-fun Total ((x Int)) Int
+        (+ 
+           (ite (= (T x 1) 0) 1 0)
+           (ite (= (T x 2) 0) 1 0)
+           (ite (= (T x 3) 0) 1 0)
+           (ite (= (T x 4) 0) 1 0)
+           (ite (= (T x 5) 0) 1 0)           
+        )
+)
+
+
+(assert (and 
+    ;The values for the 5x5 grid are from 1 to 5
+    (forall ((x Int) (y Int))
+        (implies
+            (<= 1 x 5)
+            (<= 1 y 5)
+            (MaxValuesForGrid x y) 
+
+  
+        )
+    )
+	;We create 3 triangles
+	(CreateTriangle 1)
+	(CreateTriangle 2)
+	(CreateTriangle 3)
+
+	;Assigning that the sum of all 0's (non-vertices) should be equal to 16
+    (= 16 (+ (Total 1) (Total 2) (Total 3) (Total 4) (Total 5)))
+
+))
+
+
+
+
+(check-sat)
+(get-value (
+    (T 1 1)
+    (T 1 2)
+    (T 1 3)
+    (T 1 4)
+    (T 1 5)
+
+    (T 2 1)
+    (T 2 2)
+    (T 2 3)
+    (T 2 4)
+    (T 2 5)
+
+    (T 3 1)
+    (T 3 2)
+    (T 3 3)
+    (T 3 4)
+    (T 3 5)
+
+    (T 4 1)
+    (T 4 2)
+    (T 4 3)
+    (T 4 4)
+    (T 4 5)
+
+    (T 5 1)
+    (T 5 2)
+    (T 5 3)
+    (T 5 4)
+    (T 5 5)
+))

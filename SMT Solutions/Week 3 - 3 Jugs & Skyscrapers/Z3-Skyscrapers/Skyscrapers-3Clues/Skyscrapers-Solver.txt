@@ -1,0 +1,102 @@
+(declare-fun Cell (Int Int) Int)
+
+;All cells in one row 'row' are distinct
+(define-fun UniquePerRow ((row Int)) Bool
+    (and (distinct (Cell row 1)
+              (Cell row 2)
+              (Cell row 3)
+              (Cell row 4)
+    ))
+    
+)
+
+; All cells in one column 'col' are distinct
+(define-fun UniquePerCol ((col Int)) Bool
+    (distinct (Cell 1 col)
+              (Cell 2 col)
+              (Cell 3 col)
+              (Cell 4 col)
+    )
+)
+
+; Since we can see only 1 skyscrapper, the value of each variable should be highest value (in a 4x4 it should be 4), depending on the cell
+(define-fun See1Skyscrapers ((v1 Int) (v2 Int) (v3 Int) (v4 Int)) Bool
+    (or
+        (and(= v1 4))
+        (and(= v2 4))
+        (and(= v3 4))
+        (and(= v4 4))
+    )
+)
+
+; We check each possible combination of values to make sure we can only see 2 skyscrapers
+(define-fun See2Skyscrapers ((v1 Int) (v2 Int) (v3 Int) (v4 Int)) Bool
+    (or 
+         (and (< v1 v2) (> v2 v3) (> v2 v4))
+         (and (> v1 v2) (< v1 v3) (> v3 v4))
+         (and (> v1 v2) (> v1 v3) (< v1 v4)))
+)
+
+; We check each possible combination of values to make sure we can only see 3 skyscrapers
+(define-fun See3Skyscrapers ((v1 Int) (v2 Int) (v3 Int) (v4 Int)) Bool
+    (or (and (< v1 v2) (< v2 v3) (> v3 v4))
+        (and (< v1 v2) (> v2 v3) (< v2 v4))
+        (and (< v1 v3) (< v2 v1) (< v3 v4)))
+)
+
+; We need to make sure that the variables are sorted from the the smallest to the biggest
+(define-fun See4Skyscrapers ((v1 Int) (v2 Int) (v3 Int) (v4 Int)) Bool
+    (or
+       (and (< v1 v2) (< v2 v3) (< v3 v4))
+    )    
+)
+
+; assert part
+(assert (and
+(forall ((c Int) (r Int))
+    (implies
+        (and
+            (<= 1 c 4)
+            (<= 1 r 4)
+        )
+        (and 
+        (<= 1 (Cell r c) 4)
+        (UniquePerRow r )
+        (UniquePerCol c )
+        )
+    )
+)
+
+; Define clues
+(see4Skyscrapers (Cell 1 1) (Cell 1 2) (Cell 1 3) (Cell 1 4))
+(see3Skyscrapers (Cell 3 1) (Cell 3 2) (Cell 3 3) (Cell 3 4))
+(see1Skyscrapers (Cell 4 1) (Cell 3 1) (Cell 2 1) (Cell 1 1))
+
+
+
+
+))
+(check-sat)
+(echo "The cell values are: ")
+(get-value (
+    (Cell 1 1)
+    (Cell 1 2)
+    (Cell 1 3)
+    (Cell 1 4)
+
+    (Cell 2 1)
+    (Cell 2 2)
+    (Cell 2 3)
+    (Cell 2 4)
+
+    (Cell 3 1)
+    (Cell 3 2)
+    (Cell 3 3)
+    (Cell 3 4)
+
+    (Cell 4 1)
+    (Cell 4 2)
+    (Cell 4 3)
+    (Cell 4 4)
+
+))

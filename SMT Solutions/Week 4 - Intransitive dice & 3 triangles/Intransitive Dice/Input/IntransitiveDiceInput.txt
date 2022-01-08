@@ -1,0 +1,105 @@
+(declare-fun Dice (Int Int) Int)
+;A > B 5/9 times
+;B > C 5/9 times
+;C > A 5/9 times
+
+(assert
+    (and
+    ;1) Values for each side should be from 1 to 9
+    (forall ((side Int))
+        (implies 
+                (and
+                    (<= 1 side 6)
+                )
+                    
+                (and 
+                    (<= 1 (Dice 1 side) 9)
+                    (<= 1 (Dice 2 side) 9)
+                    (<= 1 (Dice 3 side) 9)
+                )
+        ))
+
+
+
+    ;2) The values should be different per dice (if dice 1 has 4, then dice 2 and 3 != 4);
+    (forall ((side Int) (side2 Int) (side3 Int))
+        (implies 
+                (and
+                    (<= 1 side 6)
+                    (<= 1 side2 6)
+                    (<= 1 side3 6)
+                )
+                ;(distinct side side2 side3)
+                (distinct (Dice 1 side) (Dice 2 side2) (Dice 3 side3))
+         )
+    )
+
+
+
+        ;3) The sum of each of the dice's sides should be equal per dice
+        (= (+ (Dice 1 1) (Dice 1 2) (Dice 1 3) (Dice 1 4) (Dice 1 5) (Dice 1 6)) (+ (Dice 2 1) (Dice 2 2) (Dice 2 3) (Dice 2 4) (Dice 2 5) (Dice 2 6)))
+        (= (+ (Dice 2 1) (Dice 2 2) (Dice 2 3) (Dice 2 4) (Dice 2 5) (Dice 2 6)) (+ (Dice 3 1) (Dice 3 2) (Dice 3 3) (Dice 3 4) (Dice 3 5) (Dice 3 6)))
+        (= (+ (Dice 1 1) (Dice 1 2) (Dice 1 3) (Dice 1 4) (Dice 1 5) (Dice 1 6)) (+ (Dice 3 1) (Dice 3 2) (Dice 3 3) (Dice 3 4) (Dice 3 5) (Dice 3 6)))    
+
+	;4) There exists dice that follow the given conditions:
+		; if A>B, B>C, C !> A
+		; if A<B, B<C, C !< A
+		; We let Z3 choose the conditions in a way such that 3 dice are formed where
+		; more than half of the times the above conditions should be true
+    (exists ((side Int) (side2 Int) (side3 Int))
+            
+    (and
+                    (<= 1 side 6)
+                    (<= 1 side2 6)
+                    (<= 1 side3 6)
+
+                (or
+                    (> (Dice 1 side)  (Dice 2 side2))
+                    (> (Dice 2 side2) (Dice 3 side3))
+                    (> (Dice 3 side3) (Dice 1 side))                               
+                )
+                (or
+                    (< (Dice 1 side)  (Dice 2 side2))
+                    (< (Dice 2 side2) (Dice 3 side3))
+                    (< (Dice 3 side3) (Dice 1 side))                 
+                )
+    )
+    )
+
+     
+)
+)
+
+(check-sat)
+
+(echo "Die 1")
+(get-value (
+    (Dice 1 1)
+    (Dice 1 2)
+    (Dice 1 3)
+    (Dice 1 4)
+    (Dice 1 5)
+    (Dice 1 6)
+
+))
+(echo "Die 2")
+(get-value (
+    (Dice 2 1)
+    (Dice 2 2)
+    (Dice 2 3)
+    (Dice 2 4)
+    (Dice 2 5)
+    (Dice 2 6)
+
+))
+(echo "Die 3")
+(get-value (
+
+    (Dice 3 1)
+    (Dice 3 2)
+    (Dice 3 3)
+    (Dice 3 4)
+    (Dice 3 5)
+    (Dice 3 6)
+
+))

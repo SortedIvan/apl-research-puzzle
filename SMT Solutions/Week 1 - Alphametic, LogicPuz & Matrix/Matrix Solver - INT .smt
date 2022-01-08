@@ -1,0 +1,51 @@
+(declare-const A Int)
+(declare-const B Int)
+(declare-const C Int)
+(declare-const D Int)
+
+(declare-const invA Int)
+(declare-const invB Int)
+(declare-const invC Int)
+(declare-const invD Int)
+
+(declare-const finalA Real)
+(declare-const finalB Real)
+(declare-const finalC Real)
+(declare-const finalD Real)
+
+(declare-const finalAInt Int)
+(declare-const finalBInt Int)
+(declare-const finalCInt Int)
+(declare-const finalDInt Int)
+(declare-const N Int)
+(declare-const Check Bool)
+
+(declare-const Determinant Int)
+(declare-const FinalDeterminant Real)
+
+(assert(= A 3))
+(assert(= B 1))
+(assert(= C 5))
+(assert(= D 2))
+(assert(= Check false))
+
+(assert(= Determinant (- (* A D) (* B C))))
+(assert(= invA D))
+(assert(= invB (- B)))
+(assert(= invC (- C)))
+(assert(= invD A))
+
+(assert(= (ite (= Determinant 1) false true) Check))
+(assert(= FinalDeterminant (/ 1 Determinant)))
+
+
+(assert(= finalA (* FinalDeterminant invA )))
+(assert(= finalB (* FinalDeterminant invB ))) 
+(assert(= finalC (* FinalDeterminant invC ))) 
+(assert(= finalD (* FinalDeterminant invD )))
+(assert (= finalAInt (to_int finalA)))
+(assert (= finalBInt (to_int finalB)))
+(assert (= finalCInt (to_int finalC)))
+(assert (= finalDInt (to_int finalD)))
+(check-sat)
+(get-model)
