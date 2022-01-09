@@ -2,20 +2,24 @@
 (declare-const B Int)
 (declare-const C Int)
 (declare-const D Int)
+(declare-const E Int)
+(declare-const F Int)
+(declare-const G Int)
+(declare-const H Int)
+(declare-const I Int)
 
-(assert (and(< A 5) (> A 0)))
-(assert (and(< B 5) (> B 0)))
-(assert (and(< C 5) (> C 0)))
-(assert (and(< D 5) (> D 0)))
+(assert (and 
+    (<= 1 A 9) (<= 1 B 9) (<= 1 C 9)
+    (<= 1 D 9) (<= 1 E 9) (<= 1 F 9)
+    (<= 1 G 9) (<= 1 H 9) (<= 1 I 9)
+    (distinct A B C D E F G H I)
+    (= (+ A I) 5) (= (+ F H) 7)
+    (= (+ E F) 6) (= (+ G I) 6)
+    (= (+ B I) 9) (= (+ A D F) 13)
 
-(assert(and (not(= A B )) (not(= A C)) (not(= A D))))
-(assert(and (not(= B A )) (not(= B C)) (not(= B D))))
-(assert(and (not(= C A )) (not(= C B)) (not(= C D))))
-(assert(and (not(= D A )) (not(= D B)) (not(= D C))))
-
-(assert (< (* C C) 3))
-(assert (> (* B D) 10))
-(assert (not (= (+ B C ) 5)))
+))
 
 (check-sat)
-(get-model)
+(get-value (
+    A B C D E F G H I
+))
