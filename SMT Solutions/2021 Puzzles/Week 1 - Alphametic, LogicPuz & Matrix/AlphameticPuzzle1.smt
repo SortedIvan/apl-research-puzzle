@@ -1,31 +1,34 @@
-(declare-const A Int) 
-(declare-const S Int) 
+;MENTAL + HEALTH = MATTERS
 (declare-const M Int)
-(declare-const O Int)  
-(declare-const FirstWord Int) 
-(declare-const SecondWord Int) 
-(declare-const Result Int) 
+(declare-const E Int)
+(declare-const N Int)
+(declare-const T Int)
+(declare-const A Int)
+(declare-const L Int)
+(declare-const H Int)
+(declare-const R Int)
+(declare-const S Int)
+(declare-const FirstWord Int)
+(declare-const SecondWord Int)
+(declare-const Result Int)
 
-(assert(and (not(= A S )) (not(= A M)) (not(= A O))))
-(assert(and (not(= S A )) (not(= S M)) (not(= S O))))
-(assert(and (not(= M S )) (not(= M A)) (not(= M O))))
-(assert(and (not(= O S )) (not(= O A)) (not(= O M))))
+;M, E , N, T, A, L, H, R, S
+(assert (and
 
-(assert (and (< A 10) (> A 0)))
-(assert (and (< O 10) (>= O 0)))
-(assert (and (< S 10) (> S 0)))
-(assert (and (< M 10) (> M 0))) 
+    (<= 0 M 9) (<= 0 E 9) (<= 0 N 9) (<= 0 T 9)
+    (<= 0 A 9) (<= 0 L 9) (<= 0 H 9) (<= 0 R 9)
+    (<= 0 S 9)
+    (distinct M E N T A L H R S)
+    (not (= M 0)) (not (= H 0))
 
+    (= (+ (* M 100000) (* E 10000) (* N 1000) (* T 100) (* A 10) L) FirstWord)
+    (= SecondWord (+ (* H 100000) (* E 10000) (* A 1000) (* L 100) (* T 10) H))
+    (= Result (+ (* M 1000000) (* A 100000) (* T 10000) (* T 1000) (* E 100) (* R 10) S))
+    (= (+ FirstWord SecondWord) Result)
 
-(assert (and(< FirstWord 100) (> FirstWord 9)))
-(assert (and(< SecondWord 10) (> SecondWord 0)))
-(assert (and(< Result 999) (> Result 99)))
-
-(assert(= FirstWord (+ (* A 10) S)))
-(assert(= SecondWord (+ A)))
-(assert(= Result (+ (* M 100) (* O 10) M)))
-(assert(= Result (+ FirstWord SecondWord)))
-
+))
 
 (check-sat)
-(get-model)
+(get-value (
+    M E N T A L H R S
+))
