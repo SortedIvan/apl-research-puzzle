@@ -1,0 +1,107 @@
+;7 meds
+;5 rounds
+;up to 3 meds per round
+(declare-fun M (Int Int) Int)
+
+(define-fun Values ((r Int)) Bool
+    (and 
+        (<= 0 (M 1 r) 1) (<= 0 (M 2 r) 1)
+        (<= 0 (M 3 r) 1) (<= 0 (M 4 r) 1)
+        (<= 0 (M 5 r) 1) (<= 0 (M 6 r) 1)
+        (<= 0 (M 7 r) 1)
+    )
+)
+
+(define-fun RoundCount ((r Int)) Int
+    (+
+        (M 1 r)
+        (M 2 r)
+        (M 3 r)
+        (M 4 r)
+        (M 5 r)
+        (M 6 r)
+        (M 7 r)  
+    )
+)
+
+(define-fun MedCount ((m Int)) Int
+        (+
+            (ite (= (M m 1) 1) 1 0)
+            (ite (= (M m 2) 1) 1 0)
+            (ite (= (M m 3) 1) 1 0)
+            (ite (= (M m 4) 1) 1 0)
+            (ite (= (M m 5) 1) 1 0)
+        )
+)
+
+
+
+(assert (and
+    ;Assigns values between 0 and 1 (tested and untested) for all rounds
+    (Values 1) (Values 2) (Values 3) (Values 4) (Values 5)
+   
+    (forall ((r Int))
+        (implies
+            (and
+                (<= 1 r 5)
+            )
+            (<= (RoundCount r) 3)
+            
+        )
+    )
+
+    (forall ((m Int))
+        (implies
+            (and
+                (<= 1 m 7)
+            )
+            (>= (MedCount m) 2)
+        )
+    )
+
+    
+))
+
+(check-sat)
+(get-value (
+    ;r1
+    (M 1 1)
+    (M 2 1)
+    (M 3 1)
+    (M 4 1)
+    (M 5 1)
+    (M 6 1)
+    (M 7 1)
+    ;r2
+    (M 1 2)
+    (M 2 2)
+    (M 3 2)
+    (M 4 2)
+    (M 5 2)
+    (M 6 2)
+    (M 7 2)
+    ;r3
+    (M 1 3)
+    (M 2 3)
+    (M 3 3)
+    (M 4 3)
+    (M 5 3)
+    (M 6 3)
+    (M 7 3)
+    ;r4
+    (M 1 4)
+    (M 2 4)
+    (M 3 4)
+    (M 4 4)
+    (M 5 4)
+    (M 6 4)
+    (M 7 4)
+    ;r5
+    (M 1 5)
+    (M 2 5)
+    (M 3 5)
+    (M 4 5)
+    (M 5 5)
+    (M 6 5)
+    (M 7 5)
+))
