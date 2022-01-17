@@ -1,0 +1,221 @@
+(declare-const R1C1 Int)
+(declare-const R1C2 Int)
+(declare-const R1C3 Int)
+(declare-const R1C4 Int)
+(declare-const R1C5 Int)
+
+; Row 2 of Matrix
+(declare-const R2C1 Int)
+(declare-const R2C2 Int)
+(declare-const R2C3 Int)
+(declare-const R2C4 Int)
+(declare-const R2C5 Int)
+
+; Row 3 of Matrix
+(declare-const R3C1 Int)
+(declare-const R3C2 Int)
+(declare-const R3C3 Int)
+(declare-const R3C4 Int)
+(declare-const R3C5 Int)
+
+; Row 4 of Matrix
+(declare-const R4C1 Int)
+(declare-const R4C2 Int)
+(declare-const R4C3 Int)
+(declare-const R4C4 Int)
+(declare-const R4C5 Int)
+
+; Row 5 of Matrix
+(declare-const R5C1 Int)
+(declare-const R5C2 Int)
+(declare-const R5C3 Int)
+(declare-const R5C4 Int)
+(declare-const R5C5 Int)
+
+; Clues Top of Matrix
+(declare-const CU1 Int)
+(declare-const CU2 Int)
+(declare-const CU3 Int)
+(declare-const CU4 Int)
+(declare-const CU5 Int)
+
+; Clues Bottom of Matrix
+(declare-const CD1 Int)
+(declare-const CD2 Int)
+(declare-const CD3 Int)
+(declare-const CD4 Int)
+(declare-const CD5 Int)
+
+; Clues Left of Matrix
+(declare-const CL1 Int)
+(declare-const CL2 Int)
+(declare-const CL3 Int)
+(declare-const CL4 Int)
+(declare-const CL5 Int)
+
+; Clues Right of Matrix
+(declare-const CR1 Int)
+(declare-const CR2 Int)
+(declare-const CR3 Int)
+(declare-const CR4 Int)
+(declare-const CR5 Int)
+
+(define-fun distinctMatrix () Bool
+    (and
+        ;cols
+        (distinct R1C1 R1C2 R1C3 R1C4 R1C5)
+        (distinct R2C1 R2C2 R2C3 R2C4 R2C5)
+        (distinct R3C1 R3C2 R3C3 R3C4 R3C5)
+        (distinct R4C1 R4C2 R4C3 R4C4 R4C5)
+        (distinct R5C1 R5C2 R5C3 R5C4 R5C5)
+
+
+        (distinct R1C1 R2C1 R3C1 R4C1 R5C1)
+        (distinct R1C2 R2C2 R3C2 R4C2 R5C2)
+        (distinct R1C3 R2C3 R3C3 R4C3 R5C3)
+        (distinct R1C4 R2C4 R3C4 R4C4 R5C4)
+        (distinct R1C5 R2C5 R3C5 R4C5 R5C5)
+
+    )
+)
+
+(define-fun cellRangeRow ((column1 Int) (column2 Int) (column3 Int) (column4 Int) (column5 Int)) Bool
+    (and
+        (and (>= column1 1) (<= column1 5))
+        (and (>= column2 1) (<= column2 5))
+        (and (>= column3 1) (<= column3 5))
+        (and (>= column4 1) (<= column4 5))
+        (and (>= column5 1) (<= column5 5))
+    )
+)
+
+(define-fun solveRowLeft ((column1 Int) (column2 Int) (column3 Int) (column4 Int) (column5 Int) (clue Int)) Bool
+    (= 
+        clue 
+        (+ 1
+        (ite (and (> column5 column4) (> column5 column3) (> column5 column2) (> column5 column1)) 1 0)
+        (ite (and (> column4 column3) (> column4 column2) (> column4 column1)) 1 0)
+        (ite (and (> column3 column2) (> column3 column1)) 1 0)
+        (ite (> column2 column1) 1 0)
+        )
+    )
+)
+
+(define-fun solveRowRight ((column1 Int) (column2 Int) (column3 Int) (column4 Int) (column5 Int)(clue Int)) Bool
+    (= 
+        clue 
+        (+ 1
+        (ite (and (> column1 column2) (> column1 column3) (> column1 column4) (> column1 column5)) 1 0)
+        (ite (and (> column2 column3) (> column2 column4) (> column2 column5) ) 1 0)
+        (ite (and (> column3 column4) (> column3 column5) ) 1 0)
+        (ite (> column4 column5) 1 0)
+        )
+    )
+)
+
+(define-fun solveColumnUp ((row1 Int) (row2 Int) (row3 Int) (row4 Int) (row5 Int) (clue Int)) Bool
+    (= 
+        clue 
+        (+ 1
+        (ite (and (> row5 row4) (> row5 row3) (> row5 row2) (> row5 row1)) 1 0)
+        (ite (and (> row4 row3) (> row4 row2) (> row4 row1)) 1 0)
+        (ite (and (> row3 row2) (> row3 row1)) 1 0)
+        (ite (> row2 row1) 1 0)
+        )
+    )
+)
+
+(define-fun solveColumnDown ((row1 Int) (row2 Int) (row3 Int) (row4 Int) (row5 Int) (clue Int)) Bool
+    (= 
+        clue 
+        (+ 1
+        (ite (and (> row1 row2) (> row1 row3) (> row1 row4) (> row1 row5)) 1 0)
+        (ite (and (> row2 row3) (> row2 row4) (> row2 row5)) 1 0)
+        (ite (and (> row3 row4) (> row3 row5) ) 1 0)
+        (ite (> row4 row5) 1 0)
+        )
+    )
+)
+
+; Providing clue values
+(assert
+    (and
+        ;UP - ONES ONTOP
+        (= CU1 3)
+        (= CU2 4)
+        (= CU3 2)
+        (= CU4 2)
+        (= CU5 1)
+
+        ;DOWN - ONES AT THE BOTTOM
+        (= CD1 2)
+        (= CD2 2)
+        (= CD3 3)
+        (= CD4 1)
+        (= CD5 2)
+
+
+
+
+        ;LEFT - ONES ON THE LEFT
+        (= CR1 1)
+        (= CR2 2)
+        (= CR3 4)
+        (= CR4 3)
+        (= CR5 2)
+
+        ;RIGHT - ONES ON THE RIGHT
+        (= CL1 4)
+        (= CL2 2)
+        (= CL3 1)
+        (= CL4 2)
+        (= CL5 2)
+    )
+)
+
+(assert
+    (and
+        distinctMatrix
+        (cellRangeRow R1C1 R1C2 R1C3 R1C4 R1C5)
+        (cellRangeRow R2C1 R2C2 R2C3 R2C4 R2C5)
+        (cellRangeRow R3C1 R3C2 R3C3 R3C4 R3C5)
+        (cellRangeRow R4C1 R4C2 R4C3 R4C4 R4C5)
+        (cellRangeRow R5C1 R5C2 R5C3 R5C4 R5C5)
+
+        (solveRowLeft R1C1 R1C2 R1C3 R1C4 R1C5 CL1)
+        (solveRowLeft R2C1 R2C2 R2C3 R2C4 R2C5 CL2)
+        (solveRowLeft R3C1 R3C2 R3C3 R3C4 R3C5 CL3)
+        (solveRowLeft R4C1 R4C2 R4C3 R4C4 R4C5 CL4)
+        (solveRowLeft R5C1 R5C2 R5C3 R5C4 R5C5 CL5)
+
+        (solveRowRight R1C1 R1C2 R1C3 R1C4 R1C5 CR1)
+        (solveRowRight R2C1 R2C2 R2C3 R2C4 R2C5 CR2)
+        (solveRowRight R3C1 R3C2 R3C3 R3C4 R3C5 CR3)
+        (solveRowRight R4C1 R4C2 R4C3 R4C4 R4C5 CR4)
+        (solveRowRight R5C1 R5C2 R5C3 R5C4 R5C5 CR5)
+
+        (solveColumnUp R1C1 R2C1 R3C1 R4C1 R5C1 CU1)
+        (solveColumnUp R1C2 R2C2 R3C2 R4C2 R5C2 CU2)
+        (solveColumnUp R1C3 R2C3 R3C3 R4C3 R5C3 CU3)
+        (solveColumnUp R1C4 R2C4 R3C4 R4C4 R5C4 CU4)
+        (solveColumnUp R1C5 R2C5 R3C5 R4C5 R5C5 CU5)
+
+
+        (solveColumnDown R1C1 R2C1 R3C1 R4C1 R5C1 CD1)
+        (solveColumnDown R1C2 R2C2 R3C2 R4C2 R5C2 CD2)
+        (solveColumnDown R1C3 R2C3 R3C3 R4C3 R5C3 CD3)
+        (solveColumnDown R1C4 R2C4 R3C4 R4C4 R5C4 CD4)
+        (solveColumnDown R1C5 R2C5 R3C5 R4C5 R5C5 CD5)
+    )
+)
+
+(check-sat)
+(get-value(
+ 
+    R1C1 R1C2 R1C3 R1C4 R1C5
+    R2C1 R2C2 R2C3 R2C4 R2C5
+    R3C1 R3C2 R3C3 R3C4 R3C5
+    R4C1 R4C2 R4C3 R4C4 R4C5
+    R5C1 R5C2 R5C3 R5C4 R5C5
+
+))
